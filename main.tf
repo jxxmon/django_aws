@@ -70,7 +70,7 @@ resource "aws_route_table_association" "public_b" {
 
 # NAT 게이트웨이
 resource "aws_eip" "nat_eip" {
-  vpc = true
+  domain = "vpc"
 }
 
 resource "aws_nat_gateway" "nat" {
@@ -135,4 +135,30 @@ resource "aws_security_group" "web_sg" {
   }
 
   tags = { Name = "Service_web_sg" }
+}
+
+# RDS(PostgreSQL)
+resource "aws_db_subnet_group" "rds_subnet" {
+  name       = "service-rds-subnet"
+  subnet_ids = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+  tags = {
+    Name = "Service_rds_subnet"
+  }
+}
+
+resource "aws_db_instance" "postgres" {
+  identifier              = "service-postgres"
+  allocated_storage       = 20
+  engine                  = "postgres"
+  engine_version          = "17.2"
+  instance_class          = "db.t3.micro"
+  username                = "postgres"
+  password                = "changeme1234"
+  db_subnet_group_name    = aws_db_subnet_group.rds_subnet.name
+  vpc_security_group_ids  = [aws_security_group.web_sg.id]
+  skip_final_snapshot     = true
+  publicly_accessible     = false
+  tags = {
+    Name = "Service_postgres"
+  }
 }
