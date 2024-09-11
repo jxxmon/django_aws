@@ -1,0 +1,33 @@
+---
+- name: Install Docker on Service EC2
+  hosts: service
+  become: yes
+  tasks:
+    - name: apt update
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Enable and start Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Check docker version
+      command: docker --version
+      register: docker_version_output
+
+    - name: Show docker version
+       debug:
+         var: docker_version_output.stdout

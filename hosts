@@ -1,0 +1,2 @@
+[service]
+52.79.217.2 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/Service-key.pem
